@@ -1,5 +1,6 @@
 #include "text.h"
 
+#include "core/lang.h"
 #include "core/string.h"
 #include "core/time.h"
 #include "graphics/graphics.h"
@@ -8,6 +9,7 @@
 #include <string.h>
 
 #define ELLIPSIS_LENGTH 4
+#define NUMBER_BUFFER_LENGTH 100
 
 static uint8_t tmp_line[200];
 
@@ -104,35 +106,59 @@ int text_get_width(const uint8_t *str, font_t font)
     return width;
 }
 
+static int get_letter_width(const uint8_t *str, const font_definition *def, int *num_bytes)
+{
+    *num_bytes = 1;
+    if (*str == ' ') {
+        return def->space_width;
+    }
+    int letter_id = font_letter_id(def, str, num_bytes);
+    if (letter_id >= 0) {
+        return def->letter_spacing + image_letter(letter_id)->width;
+    } else {
+        return 0;
+    }
+}
+
 unsigned int text_get_max_length_for_width(const uint8_t *str, int length, font_t font, unsigned int requested_width, int invert)
 {
     const font_definition *def = font_definition_for(font);
-    length = (!length) ? string_length(str) : length;
-    unsigned int maxlen = length;
-    unsigned int width = 0;
-    int step = 1;
+    if (!length) {
+        length = string_length(str);
+    }
     if (invert) {
-        str += length - 1;
-        step = -1;
-    }
-    while (maxlen) {
-        // TODO FIX THIS: MULTIBYTE CANNOT BE TRAVERSED BACKWARDS
-        int num_bytes = 1;
-        if (*str == ' ') {
-            width += def->space_width;
-        } else {
-            int letter_id = font_letter_id(def, str, &num_bytes);
-            if (letter_id >= 0) {
-                width += def->letter_spacing + image_letter(letter_id)->width;
+        unsigned int maxlen = length;
+        unsigned int width = 0;
+        const uint8_t *s = str;
+        while (maxlen) {
+            int num_bytes;
+            width += get_letter_width(s, def, &num_bytes);
+            s += num_bytes;
+            maxlen -= num_bytes;
+        }
+
+        maxlen = length;
+        while (maxlen && width > requested_width) {
+            int num_bytes;
+            width -= get_letter_width(str, def, &num_bytes);
+            str += num_bytes;
+            maxlen -= num_bytes;
+        }
+        return maxlen;
+    } else {
+        unsigned int maxlen = length;
+        unsigned int width = 0;
+        while (maxlen) {
+            int num_bytes;
+            width += get_letter_width(str, def, &num_bytes);
+            if (width > requested_width) {
+                break;
             }
+            str += num_bytes;
+            maxlen -= num_bytes;
         }
-        if (width > requested_width) {
-            break;
-        }
-        str += step * num_bytes;
-        maxlen -= num_bytes;
+        return length - maxlen;
     }
-    return length - maxlen;
 }
 
 void text_ellipsize(uint8_t *str, font_t font, int requested_width)
@@ -154,7 +180,7 @@ void text_ellipsize(uint8_t *str, font_t font, int requested_width)
             }
         }
         if (ellipsis_width + width <= requested_width) {
-            length_with_ellipsis++;
+            length_with_ellipsis += num_bytes;
         }
         if (width > requested_width) {
             break;
@@ -250,7 +276,7 @@ int text_draw(const uint8_t *str, int x, int y, font_t font, color_t color)
 
         str += num_bytes;
         length -= num_bytes;
-        input_cursor.position++;
+        input_cursor.position += num_bytes;
     }
     if (input_cursor.capture && !input_cursor.seen) {
         input_cursor.width = 4;
@@ -261,7 +287,7 @@ int text_draw(const uint8_t *str, int x, int y, font_t font, color_t color)
     return current_x - x;
 }
 
-static void number_to_string(uint8_t *str, int value, char prefix, const char *postfix)
+static int number_to_string(uint8_t *str, int value, char prefix, const char *postfix)
 {
     int offset = 0;
     if (prefix) {
@@ -273,53 +299,58 @@ static void number_to_string(uint8_t *str, int value, char prefix, const char *p
         postfix++;
     }
     str[offset] = 0;
+    return offset;
 }
 
 int text_draw_number(int value, char prefix, const char *postfix, int x_offset, int y_offset, font_t font)
 {
-    uint8_t str[100];
+    uint8_t str[NUMBER_BUFFER_LENGTH];
     number_to_string(str, value, prefix, postfix);
     return text_draw(str, x_offset, y_offset, font, 0);
 }
 
 int text_draw_number_colored(int value, char prefix, const char *postfix, int x_offset, int y_offset, font_t font, color_t color)
 {
-    uint8_t str[100];
+    uint8_t str[NUMBER_BUFFER_LENGTH];
     number_to_string(str, value, prefix, postfix);
     return text_draw(str, x_offset, y_offset, font, color);
 }
 
 int text_draw_money(int value, int x_offset, int y_offset, font_t font)
 {
-    uint8_t str[100];
-    number_to_string(str, value, '@', " Dn");
+    uint8_t str[NUMBER_BUFFER_LENGTH];
+    int money_len = number_to_string(str, value, '@', " ");
+    const uint8_t *postfix = lang_get_string(6, 0);
+    if (postfix) {
+        string_copy(postfix, str + money_len, NUMBER_BUFFER_LENGTH - money_len - 1);
+    }
     return text_draw(str, x_offset, y_offset, font, 0);
 }
 
 int text_draw_percentage(int value, int x_offset, int y_offset, font_t font)
 {
-    uint8_t str[100];
+    uint8_t str[NUMBER_BUFFER_LENGTH];
     number_to_string(str, value, '@', "%");
     return text_draw(str, x_offset, y_offset, font, 0);
 }
 
 void text_draw_number_centered(int value, int x_offset, int y_offset, int box_width, font_t font)
 {
-    uint8_t str[100];
+    uint8_t str[NUMBER_BUFFER_LENGTH];
     number_to_string(str, value, '@', " ");
     text_draw_centered(str, x_offset, y_offset, box_width, font, 0);
 }
 
 void text_draw_number_centered_prefix(int value, char prefix, int x_offset, int y_offset, int box_width, font_t font)
 {
-    uint8_t str[100];
+    uint8_t str[NUMBER_BUFFER_LENGTH];
     number_to_string(str, value, prefix, " ");
     text_draw_centered(str, x_offset, y_offset, box_width, font, 0);
 }
 
 void text_draw_number_centered_colored(int value, int x_offset, int y_offset, int box_width, font_t font, color_t color)
 {
-    uint8_t str[100];
+    uint8_t str[NUMBER_BUFFER_LENGTH];
     number_to_string(str, value, '@', " ");
     text_draw_centered(str, x_offset, y_offset, box_width, font, color);
 }

@@ -1,7 +1,7 @@
 #include "core/encoding.h"
 
 #include "core/encoding_korean.h"
-#include "core/encoding_multibyte.h"
+#include "core/encoding_trad_chinese.h"
 #include "core/locale.h"
 #include "core/string.h"
 
@@ -590,6 +590,7 @@ encoding_type encoding_determine(language_type language)
         data.to_utf8_table = HIGH_TO_UTF8_CYRILLIC;
         data.encoding = ENCODING_CYRILLIC;
     } else if (language == LANGUAGE_TRADITIONAL_CHINESE) {
+        encoding_trad_chinese_init();
         data.to_utf8_table = NULL;
         data.encoding = ENCODING_TRADITIONAL_CHINESE;
     } else if (language == LANGUAGE_KOREAN) {
@@ -610,6 +611,20 @@ encoding_type encoding_get(void)
     return data.encoding;
 }
 
+int encoding_is_multibyte(void)
+{
+    return !data.to_utf8_table;
+}
+
+int encoding_system_uses_decomposed(void)
+{
+#ifdef __APPLE__
+    return 1;
+#else
+    return 0;
+#endif
+}
+
 static int is_ascii(const char *utf8_char)
 {
     return ((uint8_t) *utf8_char & 0x80) == 0;
@@ -625,8 +640,10 @@ void encoding_to_utf8(const uint8_t *input, char *output, int output_length, int
     if (!data.to_utf8_table) {
         if (data.encoding == ENCODING_KOREAN) {
             encoding_korean_to_utf8(input, output, output_length);
+        } else if (data.encoding == ENCODING_TRADITIONAL_CHINESE) {
+            encoding_trad_chinese_to_utf8(input, output, output_length);
         } else {
-            encoding_multibyte_to_utf8(data.encoding, input, output, output_length);
+            *output = 0;
         }
         return;
     }
@@ -669,10 +686,11 @@ void encoding_from_utf8(const char *input, uint8_t *output, int output_length)
     if (!data.to_utf8_table) {
         if (data.encoding == ENCODING_KOREAN) {
             encoding_korean_from_utf8(input, output, output_length);
-        } else {
-            //encoding_multibyte_from_utf8(data.encoding, input, output, output_length);
+            return;
+        } else if (data.encoding == ENCODING_TRADITIONAL_CHINESE) {
+            encoding_trad_chinese_from_utf8(input, output, output_length);
+            return;
         }
-        return;
     }
 
     const uint8_t *max_output = &output[output_length - 1];
@@ -708,4 +726,20 @@ void encoding_from_utf8(const char *input, uint8_t *output, int output_length)
         }
     }
     *output = 0;
+}
+
+int encoding_get_utf8_character_bytes(const char input)
+{
+    if ((input & 0x80) == 0) { // 0xxx xxxx
+        return 1;
+    } else if ((input & 0xe0) == 0xc0) { // 110x xxxx
+        return 2;
+    } else if ((input & 0xf0) == 0xe0) { // 1110 xxxx
+        return 3;
+    } else if ((input & 0xf8) == 0xf0) { // 1111 0xxx
+        return 4;
+    } else {
+        // continuation byte or unknown: fall back to 1
+        return 1;
+    }
 }
