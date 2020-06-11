@@ -69,6 +69,10 @@ typedef const char * dir_name;
 #define CURRENT_DIR L"."
 #define set_dir_name(n) utf8_to_wchar(n)
 #define free_dir_name(n) free((void*)n)
+#elif __MORPHOS__
+#define CURRENT_DIR "PROGDIR:"
+#define set_dir_name(n) (n)
+#define free_dir_name(n)
 #else
 #define CURRENT_DIR "."
 #define set_dir_name(n) (n)

@@ -48,6 +48,11 @@
 #include <vitasdk.h>
 #endif
 
+#ifdef __MORPHOS__
+unsigned long __stack = 1000000;
+static const char *version __attribute__((used)) = "$VER: Julius 1.4.1 (06.06.2020) port by BeWorld";
+#endif
+
 #define INTPTR(d) (*(int*)(d))
 
 enum {
@@ -65,7 +70,7 @@ static void handler(int sig)
     exit(1);
 }
 
-#if defined(_WIN32) || defined(__vita__) || defined(__SWITCH__)
+#if defined(_WIN32) || defined(__vita__) || defined(__SWITCH__) || defined(__MORPHOS__)
 /* Log to separate file on windows, since we don't have a console there */
 static FILE *log_file = 0;
 

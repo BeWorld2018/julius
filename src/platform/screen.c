@@ -77,7 +77,11 @@ int platform_screen_create(const char *title, int display_scale_percentage)
     SDL.renderer = SDL_CreateRenderer(SDL.window, -1, SDL_RENDERER_PRESENTVSYNC);
     if (!SDL.renderer) {
         SDL_Log("Unable to create renderer, trying software renderer: %s", SDL_GetError());
+		#ifdef __MORPHOS__
+        SDL.renderer = SDL_CreateRenderer(SDL.window, -1, SDL_RENDERER_SOFTWARE);
+		#else
         SDL.renderer = SDL_CreateRenderer(SDL.window, -1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_SOFTWARE);
+		#endif
         if (!SDL.renderer) {
             SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Unable to create renderer: %s", SDL_GetError());
             return 0;
