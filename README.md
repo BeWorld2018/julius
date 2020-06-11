@@ -6,15 +6,15 @@ Chat: [Gitter](https://gitter.im/julius-game/community) or [Discord](http://www.
 
 | Platform | Latest release | Latest build (may be unstable) |
 |----------|----------------|-----------------|
-| Windows  | [![Download](https://api.bintray.com/packages/bvschaik/julius/windows-release/images/download.svg)](https://bintray.com/bvschaik/julius/windows-release/_latestVersion) | [![Download](https://api.bintray.com/packages/bvschaik/julius/windows-unstable/images/download.svg)](https://bintray.com/bvschaik/julius/windows-unstable/_latestVersion#files) |
-| Linux AppImage | [![Download](https://api.bintray.com/packages/bvschaik/julius/linux-release/images/download.svg)](https://bintray.com/bvschaik/julius/linux-release/_latestVersion#files) | [![Download](https://api.bintray.com/packages/bvschaik/julius/linux-unstable/images/download.svg)](https://bintray.com/bvschaik/julius/linux-unstable/_latestVersion#files) |
-| Mac | [![Download](https://api.bintray.com/packages/bvschaik/julius/mac-release/images/download.svg)](https://bintray.com/bvschaik/julius/mac-release/_latestVersion) | [![Download](https://api.bintray.com/packages/bvschaik/julius/mac-unstable/images/download.svg)](https://bintray.com/bvschaik/julius/mac-unstable/_latestVersion#files) |
-| PS Vita | [![Download](https://api.bintray.com/packages/bvschaik/julius/vita-release/images/download.svg)](https://bintray.com/bvschaik/julius/vita-release/_latestVersion) | [![Download](https://api.bintray.com/packages/bvschaik/julius/vita-unstable/images/download.svg)](https://bintray.com/bvschaik/julius/vita-unstable/_latestVersion#files) |
-| Nintendo Switch | [![Download](https://api.bintray.com/packages/bvschaik/julius/switch-release/images/download.svg)](https://bintray.com/bvschaik/julius/switch-release/_latestVersion) | [![Download](https://api.bintray.com/packages/bvschaik/julius/switch-unstable/images/download.svg)](https://bintray.com/bvschaik/julius/switch-unstable/_latestVersion#files) |
+| Windows  | [![Download](https://api.bintray.com/packages/bvschaik/julius/windows/images/download.svg)](https://bintray.com/bvschaik/julius/windows/_latestVersion) | [![Download](https://api.bintray.com/packages/bvschaik/julius-dev/windows/images/download.svg)](https://bintray.com/bvschaik/julius-dev/windows/_latestVersion#files) |
+| Linux AppImage | [![Download](https://api.bintray.com/packages/bvschaik/julius/linux/images/download.svg)](https://bintray.com/bvschaik/julius/linux/_latestVersion#files) | [![Download](https://api.bintray.com/packages/bvschaik/julius-dev/linux/images/download.svg)](https://bintray.com/bvschaik/julius-dev/linux/_latestVersion#files) |
+| Mac | [![Download](https://api.bintray.com/packages/bvschaik/julius/mac/images/download.svg)](https://bintray.com/bvschaik/julius/mac/_latestVersion) | [![Download](https://api.bintray.com/packages/bvschaik/julius-dev/mac/images/download.svg)](https://bintray.com/bvschaik/julius-dev/mac/_latestVersion#files) |
+| PS Vita | [![Download](https://api.bintray.com/packages/bvschaik/julius/vita/images/download.svg)](https://bintray.com/bvschaik/julius/vita/_latestVersion) | [![Download](https://api.bintray.com/packages/bvschaik/julius-dev/vita/images/download.svg)](https://bintray.com/bvschaik/julius-dev/vita/_latestVersion#files) |
+| Nintendo Switch | [![Download](https://api.bintray.com/packages/bvschaik/julius/switch/images/download.svg)](https://bintray.com/bvschaik/julius/switch/_latestVersion) | [![Download](https://api.bintray.com/packages/bvschaik/julius-dev/switch/images/download.svg)](https://bintray.com/bvschaik/julius-dev/switch/_latestVersion#files) |
 
 ## Julius: an open source re-implementation of Caesar III
 
-The aim of this project is to create an open-source version of Caesar 3, with the same logic
+Julius is a fully working open-source version of Caesar 3, with the same logic
 as the original, but with some UI enhancements, that is able to be played on multiple platforms.
 The same logic means that the saved games are 100% compatible, and any gameplay bugs
 present in the original Caesar 3 game will also be present in Julius.

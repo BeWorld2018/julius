@@ -53,8 +53,14 @@ void translation_load(language_type language)
         case LANGUAGE_PORTUGUESE:
             translation_portuguese(&strings, &num_strings);
             break;
+        case LANGUAGE_RUSSIAN:
+            translation_russian(&strings, &num_strings);
+            break;
         case LANGUAGE_SPANISH:
             translation_spanish(&strings, &num_strings);
+            break;
+        case LANGUAGE_TRADITIONAL_CHINESE:
+            translation_traditional_chinese(&strings, &num_strings);
             break;
     }
 
