@@ -24,7 +24,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#ifdef __MORPHOS__
+unsigned long __stack = 1000000;
+static const char *version __attribute__((used)) = "$VER: Julius 1.4.1 (9.8.2020) port by BeWorld";
+#endif
+
 #ifdef __SWITCH__
+#include "platform/switch/switch.h"
 #include "platform/switch/switch_input.h"
 #endif
 
@@ -41,16 +47,6 @@
 #include "graphics/window.h"
 #include "graphics/graphics.h"
 #include "graphics/text.h"
-#endif
-
-#ifdef __vita__
-#include <vita2d.h>
-#include <vitasdk.h>
-#endif
-
-#ifdef __MORPHOS__
-unsigned long __stack = 1000000;
-static const char *version __attribute__((used)) = "$VER: Julius 1.4.1 (06.06.2020) port by BeWorld";
 #endif
 
 #define INTPTR(d) (*(int*)(d))
@@ -316,14 +312,13 @@ static void main_loop(void)
     int quit = 0;
     while (!quit) {
         SDL_Event event;
+#ifdef PLATFORM_ENABLE_PER_FRAME_CALLBACK
+        platform_per_frame_callback();
+#endif
         /* Process event queue */
 #ifdef __vita__
-        vita_handle_analog_sticks();
-        vita_handle_virtual_keyboard();
         while (vita_poll_event(&event)) {
 #elif defined(__SWITCH__)
-        switch_handle_analog_sticks();
-        switch_handle_virtual_keyboard();
         while (switch_poll_event(&event)) {
 #else
         while (SDL_PollEvent(&event)) {
@@ -367,7 +362,7 @@ static int init_sdl(void)
 }
 
 #ifdef USE_TINYFILEDIALOGS
-static const char* ask_for_data_dir(int again)
+static const char *ask_for_data_dir(int again)
 {
     if (again) {
         int result = tinyfd_messageBox("Wrong folder selected",
@@ -455,20 +450,9 @@ static void setup(const julius_args *args)
         SDL_Log("Exiting: SDL init failed");
         exit(-1);
     }
-#ifdef __vita__
-    if (!vita2d_init()) {
-        SDL_Log("Exiting: vita2d init failed");
-        exit(-1);
-    }
 
-    // Black
-    vita2d_set_clear_color(RGBA8(0, 0, 0, 255));
-
-    touch_set_mode(TOUCH_MODE_TOUCHPAD);
-#endif
-
-#ifdef __SWITCH__
-    touch_set_mode(TOUCH_MODE_TOUCHPAD);
+#ifdef PLATFORM_ENABLE_INIT_CALLBACK
+    platform_init_callback();
 #endif
 
     if (!pre_init(args->data_directory)) {

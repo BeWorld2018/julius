@@ -2,7 +2,7 @@
 
 [![AppVeyor](https://ci.appveyor.com/api/projects/status/github/bvschaik/julius?branch=master&svg=true)](https://ci.appveyor.com/project/bvschaik/julius) [![Travis](https://api.travis-ci.com/bvschaik/julius.svg?branch=master)](https://travis-ci.com/github/bvschaik/julius)
 
-Chat: [Gitter](https://gitter.im/julius-game/community) or [Discord](http://www.discord.gg/GamerZakh) (kindly hosted by GamerZakh)
+Chat: [Discord](http://www.discord.gg/GamerZakh) (kindly hosted by GamerZakh) or [Gitter](https://gitter.im/julius-game/community)
 
 | Platform | Latest release | Latest build (may be unstable) |
 |----------|----------------|-----------------|
@@ -26,7 +26,7 @@ Beware: Augustus does not support the original Caesar 3 save files, while Julius
 UI enhancements for Julius include:
 - Support for widescreen resolutions
 - Windowed mode support for 32-bit desktops
-- Several small in-game quality of life improvements
+- A lot of small in-game [quality of life improvements](https://github.com/bvschaik/julius/wiki/Improvements-from-Caesar-3)
 
 Julius requires the original assets (graphics, sounds, etc) from Caesar 3 to run.
 It optionally [supports the high-quality MP3 files](https://github.com/bvschaik/julius/wiki/MP3-Support) once provided on the

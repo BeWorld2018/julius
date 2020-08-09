@@ -168,6 +168,7 @@ static void build_end(void)
             sound_effect_play(SOUND_EFFECT_BUILD);
         }
         building_construction_place();
+        widget_minimap_invalidate();
     }
 }
 
@@ -491,6 +492,11 @@ void widget_city_handle_input_military(const mouse *m, const hotkeys *h, int leg
             military_map_click(legion_formation_id, tile);
         }
     }
+}
+
+int widget_city_current_grid_offset(void)
+{
+    return data.current_tile.grid_offset;
 }
 
 void widget_city_get_tooltip(tooltip_context *c)

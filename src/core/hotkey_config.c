@@ -26,6 +26,22 @@ static const char *ini_keys[] = {
     "decrease_game_speed",
     "rotate_map_left",
     "rotate_map_right",
+    "build_vacant_house",
+    "build_clear_land",
+    "build_road",
+    "build_plaza",
+    "build_gardens",
+    "build_prefecture",
+    "build_engineers_post",
+    "build_doctor",
+    "build_granary",
+    "build_warehouse",
+    "build_market",
+    "build_wall",
+    "build_gatehouse",
+    "build_reservoir",
+    "build_aqueduct",
+    "build_fountain",
     "show_advisor_labor",
     "show_advisor_military",
     "show_advisor_imperial",
@@ -61,6 +77,7 @@ static const char *ini_keys[] = {
     "resize_to_1024",
     "save_screenshot",
     "save_city_screenshot",
+    "clone_building"
 };
 
 static struct {

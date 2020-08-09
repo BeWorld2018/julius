@@ -322,11 +322,11 @@ static int handle_right_click(int type)
         return 0;
     }
     if (type == INFO_FUNDS) {
-        window_message_dialog_show(15, window_city_draw_all);
+        window_message_dialog_show(MESSAGE_DIALOG_TOP_FUNDS, window_city_draw_all);
     } else if (type == INFO_POPULATION) {
-        window_message_dialog_show(16, window_city_draw_all);
+        window_message_dialog_show(MESSAGE_DIALOG_TOP_POPULATION, window_city_draw_all);
     } else if (type == INFO_DATE) {
-        window_message_dialog_show(17, window_city_draw_all);
+        window_message_dialog_show(MESSAGE_DIALOG_TOP_DATE, window_city_draw_all);
     }
     return 1;
 }
@@ -392,6 +392,7 @@ static void replay_map_confirmed(int confirmed)
         window_mission_briefing_show();
     }
 }
+
 static void menu_file_replay_map(int param)
 {
     clear_state();
@@ -491,7 +492,6 @@ static void menu_help_about(int param)
     window_go_back();
     window_message_dialog_show(MESSAGE_DIALOG_ABOUT, window_city_draw_all);
 }
-
 
 static void menu_advisors_go_to(int advisor)
 {

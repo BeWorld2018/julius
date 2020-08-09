@@ -72,7 +72,11 @@ static int get_height_id(void)
                 return 5;
         }
     } else if (context.type == BUILDING_INFO_BUILDING) {
-        switch (building_get(context.building_id)->type) {
+        const building *b = building_get(context.building_id);
+        if (building_is_house(b->type) && b->house_population <= 0) {
+            return 5;
+        }
+        switch (b->type) {
             case BUILDING_SMALL_TEMPLE_CERES:
             case BUILDING_SMALL_TEMPLE_NEPTUNE:
             case BUILDING_SMALL_TEMPLE_MERCURY:
@@ -612,7 +616,7 @@ static void button_help(int param1, int param2)
     if (context.help_id > 0) {
         window_message_dialog_show(context.help_id, window_city_draw_all);
     } else {
-        window_message_dialog_show(10, window_city_draw_all);
+        window_message_dialog_show(MESSAGE_DIALOG_HELP, window_city_draw_all);
     }
     window_invalidate();
 }

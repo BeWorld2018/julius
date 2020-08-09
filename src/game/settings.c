@@ -41,7 +41,7 @@ static struct {
 
 static void load_default_settings(void)
 {
-    data.fullscreen = 1;
+    data.fullscreen = 0;
     data.window_width = 800;
     data.window_height = 600;
 
