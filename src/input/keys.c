@@ -28,7 +28,8 @@ static const char *key_display_names[KEY_MAX_ITEMS] = {
     ",", ".", "/", "F1", "F2", "F3", "F4", "F5", "F6", "F7",
     "F8", "F9", "F10", "F11", "F12", "Insert", "Delete", "Home", "End", "PageUp",
     "PageDown", "Right", "Left", "Down", "Up",
-    "Keypad 1", "Keypad 2", "Keypad 3", "Keypad 4", "Keypad 5", "Keypad 6", "Keypad 7", "Keypad 8", "Keypad 9", "Keypad 0",
+    "Keypad 1", "Keypad 2", "Keypad 3", "Keypad 4", "Keypad 5",
+    "Keypad 6", "Keypad 7", "Keypad 8", "Keypad 9", "Keypad 0",
     "Keypad .", "Keypad +", "Keypad -", "Keypad *", "Keypad /", "NonUS"
 };
 
@@ -143,7 +144,7 @@ const uint8_t *key_combination_display_name(key_type key, key_modifier_type modi
 
     // Modifiers are easy, now for key name...
     const char *key_name = system_keyboard_key_name(key);
-    if (key_name[0] >= 0 && key_name[0] <= 127) {
+    if ((key_name[0] & 0x80) == 0) {
         // Special cases where we know the key is not displayable using the internal font
         switch (key_name[0]) {
             case '[': key_name = "Left bracket"; break;

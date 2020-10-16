@@ -55,9 +55,7 @@ static void init(resource_type resource)
 
 static void draw_background(void)
 {
-    graphics_in_dialog();
-    window_advisor_trade_draw_dialog_background();
-    graphics_reset_dialog();
+    window_draw_underlying_window();
 }
 
 static void draw_foreground(void)
@@ -94,7 +92,8 @@ static void draw_foreground(void)
             // not mothballed, some working
             int width = text_draw_number(active_buildings, '@', " ", 98, 172, FONT_NORMAL_BLACK);
             width += lang_text_draw(54, 12, 98 + width, 172, FONT_NORMAL_BLACK);
-            width += text_draw_number(total_buildings - active_buildings, '@', " ", 98 + width, 172, FONT_NORMAL_BLACK);
+            width += text_draw_number(total_buildings - active_buildings, '@', " ",
+                98 + width, 172, FONT_NORMAL_BLACK);
             if (active_buildings == 1) {
                 lang_text_draw(54, 13, 98 + width, 172, FONT_NORMAL_BLACK);
             } else {
@@ -180,7 +179,7 @@ static void handle_input(const mouse *m, const hotkeys *h)
         return;
     }
     if (input_go_back_requested(m, h)) {
-        window_advisors_show();
+        window_go_back();
     }
 }
 
@@ -191,7 +190,7 @@ static void button_help(int param1, int param2)
 
 static void button_ok(int param1, int param2)
 {
-    window_advisors_show();
+    window_go_back();
 }
 
 static void button_export_up_down(int is_down, int param2)

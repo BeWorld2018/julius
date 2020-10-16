@@ -19,7 +19,7 @@ static int is_problem_cartpusher(int figure_id)
     }
 }
 
-void overlay_problems_prepare_building(building *b)
+void city_overlay_problems_prepare_building(building *b)
 {
     if (b->house_size) {
         return;
@@ -61,7 +61,6 @@ static int show_building_native(const building *b)
     return b->type == BUILDING_NATIVE_HUT || b->type == BUILDING_NATIVE_MEETING || b->type == BUILDING_MISSION_POST;
 }
 
-
 static int show_figure_fire(const figure *f)
 {
     return f->type == FIGURE_PREFECT;
@@ -94,7 +93,6 @@ static int show_figure_native(const figure *f)
     return f->type == FIGURE_INDIGENOUS_NATIVE || f->type == FIGURE_MISSIONARY;
 }
 
-
 static int get_column_height_fire(const building *b)
 {
     return b->fire_risk > 0 ? b->fire_risk / 10 : NO_COLUMN;
@@ -102,7 +100,7 @@ static int get_column_height_fire(const building *b)
 
 static int get_column_height_damage(const building *b)
 {
-    return b->damage_risk > 0 ? b->damage_risk / 10 : NO_COLUMN;
+    return b->damage_risk > 0 ? b->damage_risk / 20 : NO_COLUMN;
 }
 
 static int get_column_height_crime(const building *b)
@@ -130,7 +128,6 @@ static int get_column_height_none(const building *b)
 {
     return NO_COLUMN;
 }
-
 
 static int get_tooltip_fire(tooltip_context *c, const building *b)
 {

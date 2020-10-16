@@ -38,6 +38,7 @@ static translation_string all_strings[] = {
     {TR_CONFIG_ALLOW_CYCLING_TEMPLES, "Permet de construire tous les temples successivement"},
     {TR_CONFIG_SHOW_WATER_STRUCTURE_RANGE, "Voir la zone d'effet en plaçant des réservoirs, des fontaines et des puits"},
     {TR_CONFIG_SHOW_CONSTRUCTION_SIZE, "Voir la taille des constructions durant le glissement de la souris"},
+    {TR_CONFIG_HIGHLIGHT_LEGIONS, "Mettre en surbrillance les légions au survol du curseur"},
     {TR_CONFIG_FIX_IMMIGRATION_BUG, "Corrige le bug d'immigration en mode très difficile"},
     {TR_CONFIG_FIX_100_YEAR_GHOSTS, "Corrige le bug des fantômes de 100 ans"},
     {TR_CONFIG_FIX_EDITOR_EVENTS, "Corrige \"Nouvel Empereur\" et la survie des parties créees avec l'éditeur"},
@@ -51,6 +52,7 @@ static translation_string all_strings[] = {
     {TR_HOTKEY_HEADER_OVERLAYS, "Cartes de visualisation"},
     {TR_HOTKEY_HEADER_BOOKMARKS, "Points d'intérêt de la cité"},
     {TR_HOTKEY_HEADER_EDITOR, "Editeur"},
+    {TR_HOTKEY_HEADER_BUILD, "Contrôles de construction"}, // TODO: Google Translate
     {TR_HOTKEY_ARROW_UP, "Haut"},
     {TR_HOTKEY_ARROW_DOWN, "Bas"},
     {TR_HOTKEY_ARROW_LEFT, "Gauche"},
@@ -62,6 +64,7 @@ static translation_string all_strings[] = {
     {TR_HOTKEY_RESIZE_TO_1024, "Redimensionner en 1024x768"},
     {TR_HOTKEY_SAVE_SCREENSHOT, "Capturer l'écran de jeu"},
     {TR_HOTKEY_SAVE_CITY_SCREENSHOT, "Capturer la cité entière"},
+    {TR_HOTKEY_BUILD_CLONE, "Cloner le bâtiment sous le curseur"}, // TODO: Google Translate
     {TR_HOTKEY_LOAD_FILE, "Charger une partie"},
     {TR_HOTKEY_SAVE_FILE, "Sauvegarder une partie"},
     {TR_HOTKEY_INCREASE_GAME_SPEED, "Augmenter la vitesse du jeu"},

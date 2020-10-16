@@ -258,7 +258,8 @@ void widget_top_menu_draw(int force)
         width = lang_text_draw_colored(6, 1, 470, 5, FONT_NORMAL_PLAIN, COLOR_WHITE);
         text_draw_number_colored(city_population(), '@', " ", 466 + width, 5, FONT_NORMAL_PLAIN, COLOR_WHITE);
 
-        lang_text_draw_month_year_max_width(game_time_month(), game_time_year(), 655, 5, 110, FONT_NORMAL_PLAIN, COLOR_FONT_YELLOW);
+        lang_text_draw_month_year_max_width(game_time_month(), game_time_year(),
+            655, 5, 110, FONT_NORMAL_PLAIN, COLOR_FONT_YELLOW);
     } else {
         data.offset_funds = 493;
         data.offset_population = 637;
@@ -270,7 +271,8 @@ void widget_top_menu_draw(int force)
         width = lang_text_draw_colored(6, 1, 645, 5, FONT_NORMAL_PLAIN, COLOR_WHITE);
         text_draw_number_colored(city_population(), '@', " ", 651 + width, 5, FONT_NORMAL_PLAIN, COLOR_WHITE);
 
-        lang_text_draw_month_year_max_width(game_time_month(), game_time_year(), 850, 5, 110, FONT_NORMAL_PLAIN, COLOR_FONT_YELLOW);
+        lang_text_draw_month_year_max_width(game_time_month(), game_time_year(),
+            850, 5, 110, FONT_NORMAL_PLAIN, COLOR_FONT_YELLOW);
     }
     drawn.treasury = treasury;
     drawn.population = city_population();
@@ -322,11 +324,11 @@ static int handle_right_click(int type)
         return 0;
     }
     if (type == INFO_FUNDS) {
-        window_message_dialog_show(15, window_city_draw_all);
+        window_message_dialog_show(MESSAGE_DIALOG_TOP_FUNDS, window_city_draw_all);
     } else if (type == INFO_POPULATION) {
-        window_message_dialog_show(16, window_city_draw_all);
+        window_message_dialog_show(MESSAGE_DIALOG_TOP_POPULATION, window_city_draw_all);
     } else if (type == INFO_DATE) {
-        window_message_dialog_show(17, window_city_draw_all);
+        window_message_dialog_show(MESSAGE_DIALOG_TOP_DATE, window_city_draw_all);
     }
     return 1;
 }
@@ -392,6 +394,7 @@ static void replay_map_confirmed(int confirmed)
         window_mission_briefing_show();
     }
 }
+
 static void menu_file_replay_map(int param)
 {
     clear_state();
@@ -491,7 +494,6 @@ static void menu_help_about(int param)
     window_go_back();
     window_message_dialog_show(MESSAGE_DIALOG_ABOUT, window_city_draw_all);
 }
-
 
 static void menu_advisors_go_to(int advisor)
 {

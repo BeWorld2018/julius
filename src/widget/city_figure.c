@@ -206,7 +206,8 @@ static void adjust_pixel_offset(const figure *f, int *pixel_x, int *pixel_y)
     int x_offset = 0;
     int y_offset = 0;
     if (f->use_cross_country) {
-        tile_cross_country_offset_to_pixel_offset(f->cross_country_x % 15, f->cross_country_y % 15, &x_offset, &y_offset);
+        tile_cross_country_offset_to_pixel_offset(
+            f->cross_country_x % 15, f->cross_country_y % 15, &x_offset, &y_offset);
         y_offset -= f->missile_damage;
     } else {
         int direction = figure_image_normalize_direction(f->direction);
@@ -233,7 +234,7 @@ static void adjust_pixel_offset(const figure *f, int *pixel_x, int *pixel_y)
     *pixel_y += y_offset - img->sprite_offset_y;
 }
 
-static void draw_figure(const figure *f, int x, int y)
+static void draw_figure(const figure *f, int x, int y, int highlight)
 {
     if (f->cart_image_id) {
         switch (f->type) {
@@ -264,20 +265,23 @@ static void draw_figure(const figure *f, int x, int y)
             image_draw_enemy(f->image_id, x, y);
         } else {
             image_draw(f->image_id, x, y);
+            if (highlight) {
+                image_draw_blend_alpha(f->image_id, x, y, COLOR_MASK_LEGION_HIGHLIGHT);
+            }
         }
     }
 }
 
-void city_draw_figure(const figure *f, int x, int y)
+void city_draw_figure(const figure *f, int x, int y, int highlight)
 {
     adjust_pixel_offset(f, &x, &y);
-    draw_figure(f, x, y);
+    draw_figure(f, x, y, highlight);
 }
 
 void city_draw_selected_figure(const figure *f, int x, int y, pixel_coordinate *coord)
 {
     adjust_pixel_offset(f, &x, &y);
-    draw_figure(f, x, y);
+    draw_figure(f, x, y, 0);
     coord->x = x;
     coord->y = y;
 }

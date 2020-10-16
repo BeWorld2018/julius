@@ -6,6 +6,7 @@
 #include "core/lang.h"
 #include "core/time.h"
 #include "game/game.h"
+#include "game/settings.h"
 #include "game/system.h"
 #include "input/mouse.h"
 #include "input/touch.h"
@@ -25,6 +26,7 @@
 #include <stdlib.h>
 
 #ifdef __SWITCH__
+#include "platform/switch/switch.h"
 #include "platform/switch/switch_input.h"
 #endif
 
@@ -33,19 +35,20 @@
 #include "platform/vita/vita_input.h"
 #endif
 
+#include "platform/android/android.h"
+
 #if defined(_WIN32)
 #include <string.h>
+#endif
+
+#if defined(USE_TINYFILEDIALOGS) || defined(__ANDROID__)
+#define SHOW_FOLDER_SELECT_DIALOG
 #endif
 
 #ifdef DRAW_FPS
 #include "graphics/window.h"
 #include "graphics/graphics.h"
 #include "graphics/text.h"
-#endif
-
-#ifdef __vita__
-#include <vita2d.h>
-#include <vitasdk.h>
 #endif
 
 #define INTPTR(d) (*(int*)(d))
@@ -166,9 +169,12 @@ static void run_and_draw(void)
         int y_offset = 24;
         int y_offset_text = y_offset + 5;
         graphics_fill_rect(0, y_offset, 100, 20, COLOR_WHITE);
-        text_draw_number_colored(fps.last_fps, 'f', "", 5, y_offset_text, FONT_NORMAL_PLAIN, COLOR_FONT_RED);
-        text_draw_number_colored(time_between_run_and_draw - time_before_run, 'g', "", 40, y_offset_text, FONT_NORMAL_PLAIN, COLOR_FONT_RED);
-        text_draw_number_colored(time_after_draw - time_between_run_and_draw, 'd', "", 70, y_offset_text, FONT_NORMAL_PLAIN, COLOR_FONT_RED);
+        text_draw_number_colored(fps.last_fps,
+            'f', "", 5, y_offset_text, FONT_NORMAL_PLAIN, COLOR_FONT_RED);
+        text_draw_number_colored(time_between_run_and_draw - time_before_run,
+            'g', "", 40, y_offset_text, FONT_NORMAL_PLAIN, COLOR_FONT_RED);
+        text_draw_number_colored(time_after_draw - time_between_run_and_draw,
+            'd', "", 70, y_offset_text, FONT_NORMAL_PLAIN, COLOR_FONT_RED);
     }
 
     platform_screen_render();
@@ -311,14 +317,13 @@ static void main_loop(void)
     int quit = 0;
     while (!quit) {
         SDL_Event event;
+#ifdef PLATFORM_ENABLE_PER_FRAME_CALLBACK
+        platform_per_frame_callback();
+#endif
         /* Process event queue */
 #ifdef __vita__
-        vita_handle_analog_sticks();
-        vita_handle_virtual_keyboard();
         while (vita_poll_event(&event)) {
 #elif defined(__SWITCH__)
-        switch_handle_analog_sticks();
-        switch_handle_virtual_keyboard();
         while (switch_poll_event(&event)) {
 #else
         while (SDL_PollEvent(&event)) {
@@ -357,13 +362,40 @@ static int init_sdl(void)
 #elif SDL_VERSION_ATLEAST(2, 0, 4)
     SDL_SetHint(SDL_HINT_ANDROID_SEPARATE_MOUSE_AND_TOUCH, "1");
 #endif
+#ifdef __ANDROID__
+    SDL_SetHint(SDL_HINT_ANDROID_TRAP_BACK_BUTTON, "1");
+#endif
     SDL_Log("SDL initialized");
     return 1;
 }
 
-#ifdef USE_TINYFILEDIALOGS
-static const char* ask_for_data_dir(int again)
+#ifdef SHOW_FOLDER_SELECT_DIALOG
+static const char *ask_for_data_dir(int again)
 {
+#ifdef __ANDROID__
+    if (again) {
+        const SDL_MessageBoxButtonData buttons[] = {
+           { SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, 1, "OK" },
+           { SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT, 0, "Cancel" }
+        };
+        const SDL_MessageBoxData messageboxdata = {
+            SDL_MESSAGEBOX_WARNING, NULL, "Wrong folder selected",
+            "The selected folder is not a proper Caesar 3 folder.\n\n"
+            "Please select a path directly from either the internal storage "
+            "or the SD card, otherwise the path may not be recognised.\n\n"
+            "Press OK to select another folder or Cancel to exit.",
+            SDL_arraysize(buttons), buttons, NULL
+        };
+        int result;
+        SDL_ShowMessageBox(&messageboxdata, &result);
+        if (!result) {
+            return NULL;
+        }
+    } else {
+        android_toast_message("Please select the location of the Caesar 3 files.");
+    }
+    return android_show_c3_path_dialog();
+#else
     if (again) {
         int result = tinyfd_messageBox("Wrong folder selected",
             "Julius requires the original files from Caesar 3 to run.\n\n"
@@ -375,6 +407,7 @@ static const char* ask_for_data_dir(int again)
         }
     }
     return tinyfd_selectFolderDialog("Please select your Caesar 3 folder", NULL);
+#endif
 }
 #endif
 
@@ -410,7 +443,7 @@ static int pre_init(const char *custom_data_dir)
     }
     #endif
 
-    #ifdef USE_TINYFILEDIALOGS
+    #ifdef SHOW_FOLDER_SELECT_DIALOG
         const char *user_dir = pref_data_dir();
         if (user_dir) {
             SDL_Log("Loading game from user pref %s", user_dir);
@@ -424,6 +457,9 @@ static int pre_init(const char *custom_data_dir)
             SDL_Log("Loading game from user-selected dir %s", user_dir);
             if (platform_file_manager_set_base_path(user_dir) && game_pre_init()) {
                 pref_save_data_dir(user_dir);
+#ifdef __ANDROID__
+                android_toast_message("C3 files found. Path saved.");
+#endif
                 return 1;
             }
             user_dir = ask_for_data_dir(1);
@@ -450,25 +486,21 @@ static void setup(const julius_args *args)
         SDL_Log("Exiting: SDL init failed");
         exit(-1);
     }
-#ifdef __vita__
-    if (!vita2d_init()) {
-        SDL_Log("Exiting: vita2d init failed");
-        exit(-1);
-    }
 
-    // Black
-    vita2d_set_clear_color(RGBA8(0, 0, 0, 255));
-
-    touch_set_mode(TOUCH_MODE_TOUCHPAD);
-#endif
-
-#ifdef __SWITCH__
-    touch_set_mode(TOUCH_MODE_TOUCHPAD);
+#ifdef PLATFORM_ENABLE_INIT_CALLBACK
+    platform_init_callback();
 #endif
 
     if (!pre_init(args->data_directory)) {
         SDL_Log("Exiting: game pre-init failed");
         exit(1);
+    }
+
+    if (args->force_windowed && setting_fullscreen()) {
+        int w, h;
+        setting_window(&w, &h);
+        setting_set_display(0, w, h);
+        SDL_Log("Forcing windowed mode with size %d x %d", w, h);
     }
 
     char title[100];

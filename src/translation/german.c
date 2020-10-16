@@ -34,10 +34,12 @@ static translation_string all_strings[] = {
     {TR_CONFIG_SHOW_INTRO_VIDEO, "Intro-Videos abspielen"},
     {TR_CONFIG_SIDEBAR_INFO, "Aktiviere zusätzliche Informationen im rechtsseitigen Bedienfeld"},
     {TR_CONFIG_SMOOTH_SCROLLING, "Aktiviere sanftes Scrollen"},
+    {TR_CONFIG_DISABLE_MAP_DRAG, "Verschieben der Karte mit der rechten Maustaste deaktivieren"},
     {TR_CONFIG_VISUAL_FEEDBACK_ON_DELETE, "Beim Planieren der Landfläche das visuelle Feedback verbessern"},
     {TR_CONFIG_ALLOW_CYCLING_TEMPLES, "Erlaube alle Tempel nacheinander zu bauen"},
     {TR_CONFIG_SHOW_WATER_STRUCTURE_RANGE, "Zeige Reichweite beim Bauen von Reservoirs und Brunnen"},
     {TR_CONFIG_SHOW_CONSTRUCTION_SIZE, "Zeige Konstruktionsgröße beim Bauen"},
+    {TR_CONFIG_HIGHLIGHT_LEGIONS, "Hebe Legion beim Berühren mit der Maus hervor"},
     {TR_CONFIG_FIX_IMMIGRATION_BUG, "Behebe Immigrationsfehler auf 'Sehr schwierig'"},
     {TR_CONFIG_FIX_100_YEAR_GHOSTS, "Behebe '100 Jahre alte Geister'"},
     {TR_CONFIG_FIX_EDITOR_EVENTS, "Behebe Wechsel- und Überlebenszeit des Imperators in eigenen Missionen"},
@@ -51,6 +53,7 @@ static translation_string all_strings[] = {
     {TR_HOTKEY_HEADER_OVERLAYS, "Spezialkarten"},
     {TR_HOTKEY_HEADER_BOOKMARKS, "Lesezeichen für Stadtkarten"},
     {TR_HOTKEY_HEADER_EDITOR, "Editor"},
+    {TR_HOTKEY_HEADER_BUILD, "Bauen"},
     {TR_HOTKEY_ARROW_UP, "Hoch"},
     {TR_HOTKEY_ARROW_DOWN, "Runter"},
     {TR_HOTKEY_ARROW_LEFT, "Links"},
@@ -62,6 +65,7 @@ static translation_string all_strings[] = {
     {TR_HOTKEY_RESIZE_TO_1024, "Fenstergröße: 1024x768"},
     {TR_HOTKEY_SAVE_SCREENSHOT, "Screenshot speichern"},
     {TR_HOTKEY_SAVE_CITY_SCREENSHOT, "Stadtweiten Screenshot sp."},
+    {TR_HOTKEY_BUILD_CLONE, "Gebäude unter Mauszeiger vervielfältigen"},
     {TR_HOTKEY_LOAD_FILE, "Datei laden"},
     {TR_HOTKEY_SAVE_FILE, "Datei speichern"},
     {TR_HOTKEY_INCREASE_GAME_SPEED, "Spielgeschwindigkeit erhöhen"},
@@ -97,7 +101,7 @@ static translation_string all_strings[] = {
     {TR_HOTKEY_SET_BOOKMARK_3, "Setze Lesezeichen 3"},
     {TR_HOTKEY_SET_BOOKMARK_4, "Setze Lesezeichen 4"},
     {TR_HOTKEY_EDITOR_TOGGLE_BATTLE_INFO, "Kampfinformationen umschalten"},
-    {TR_HOTKEY_EDIT_TITLE, "Drücke neue Tastenkombination"}
+    {TR_HOTKEY_EDIT_TITLE, "Neue Tastenkombination"}
 };
 
 void translation_german(const translation_string **strings, int *num_strings)

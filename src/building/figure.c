@@ -1087,7 +1087,8 @@ static void spawn_figure_native_hut(building *b)
         return;
     }
     int x_out, y_out;
-    if (b->subtype.native_meeting_center_id > 0 && map_terrain_get_adjacent_road_or_clear_land(b->x, b->y, b->size, &x_out, &y_out)) {
+    if (b->subtype.native_meeting_center_id > 0
+        && map_terrain_get_adjacent_road_or_clear_land(b->x, b->y, b->size, &x_out, &y_out)) {
         b->figure_spawn_delay++;
         if (b->figure_spawn_delay > 4) {
             b->figure_spawn_delay = 0;
@@ -1167,7 +1168,6 @@ static void update_native_crop_progress(building *b)
     }
     map_image_set(b->grid_offset, image_group(GROUP_BUILDING_FARM_CROPS) + b->data.industry.progress);
 }
-
 
 void building_figure_generate(void)
 {

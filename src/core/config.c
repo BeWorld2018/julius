@@ -18,10 +18,12 @@ static const char *ini_keys[] = {
     "ui_sidebar_info",
     "ui_show_intro_video",
     "ui_smooth_scrolling",
+    "ui_disable_map_drag",
     "ui_visual_feedback_on_delete",
     "ui_allow_cycling_temples",
     "ui_show_water_structure_range",
-    "ui_show_construction_size"
+    "ui_show_construction_size",
+    "ui_highlight_legions"
 };
 
 static const char *ini_string_keys[] = {
@@ -68,17 +70,18 @@ const char *config_get_default_string_value(config_string_key key)
     return default_string_values[key];
 }
 
-void config_set_defaults(void)
+static void set_defaults(void)
 {
     for (int i = 0; i < CONFIG_MAX_ENTRIES; ++i) {
         values[i] = default_values[i];
     }
-    strncpy(string_values[CONFIG_STRING_UI_LANGUAGE_DIR], default_string_values[CONFIG_STRING_UI_LANGUAGE_DIR], CONFIG_STRING_VALUE_MAX);
+    strncpy(string_values[CONFIG_STRING_UI_LANGUAGE_DIR],
+        default_string_values[CONFIG_STRING_UI_LANGUAGE_DIR], CONFIG_STRING_VALUE_MAX);
 }
 
 void config_load(void)
 {
-    config_set_defaults();
+    set_defaults();
     FILE *fp = file_open(INI_FILENAME, "rt");
     if (!fp) {
         return;

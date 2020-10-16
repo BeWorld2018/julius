@@ -82,7 +82,6 @@ int map_has_road_access_granary(int x, int y, map_point *road)
     return 0;
 }
 
-
 static int road_within_radius(int x, int y, int size, int radius, int *x_road, int *y_road)
 {
     int x_min, y_min, x_max, y_max;
@@ -197,7 +196,8 @@ static void check_road_to_largest_network_hippodrome(int x, int y, int *min_inde
     }
 }
 
-static void check_min_dist_hippodrome(int base_offset, int x_offset, int *min_dist, int *min_grid_offset, int *min_x_offset)
+static void check_min_dist_hippodrome(
+    int base_offset, int x_offset, int *min_dist, int *min_grid_offset, int *min_x_offset)
 {
     for (const int *tile_delta = map_grid_adjacent_offsets(5); *tile_delta; tile_delta++) {
         int grid_offset = base_offset + *tile_delta;

@@ -26,10 +26,12 @@ typedef enum {
     TR_CONFIG_SHOW_INTRO_VIDEO,
     TR_CONFIG_SIDEBAR_INFO,
     TR_CONFIG_SMOOTH_SCROLLING,
+    TR_CONFIG_DISABLE_MAP_DRAG,
     TR_CONFIG_VISUAL_FEEDBACK_ON_DELETE,
     TR_CONFIG_ALLOW_CYCLING_TEMPLES,
     TR_CONFIG_SHOW_WATER_STRUCTURE_RANGE,
     TR_CONFIG_SHOW_CONSTRUCTION_SIZE,
+    TR_CONFIG_HIGHLIGHT_LEGIONS,
     TR_CONFIG_FIX_IMMIGRATION_BUG,
     TR_CONFIG_FIX_100_YEAR_GHOSTS,
     TR_CONFIG_FIX_EDITOR_EVENTS,
@@ -43,6 +45,7 @@ typedef enum {
     TR_HOTKEY_HEADER_OVERLAYS,
     TR_HOTKEY_HEADER_BOOKMARKS,
     TR_HOTKEY_HEADER_EDITOR,
+    TR_HOTKEY_HEADER_BUILD,
     TR_HOTKEY_ARROW_UP,
     TR_HOTKEY_ARROW_DOWN,
     TR_HOTKEY_ARROW_LEFT,
@@ -54,6 +57,7 @@ typedef enum {
     TR_HOTKEY_RESIZE_TO_1024,
     TR_HOTKEY_SAVE_SCREENSHOT,
     TR_HOTKEY_SAVE_CITY_SCREENSHOT,
+    TR_HOTKEY_BUILD_CLONE,
     TR_HOTKEY_LOAD_FILE,
     TR_HOTKEY_SAVE_FILE,
     TR_HOTKEY_INCREASE_GAME_SPEED,
@@ -105,10 +109,14 @@ const uint8_t *translation_for(translation_key key);
 void translation_english(const translation_string **strings, int *num_strings);
 void translation_french(const translation_string **strings, int *num_strings);
 void translation_german(const translation_string **strings, int *num_strings);
+void translation_italian(const translation_string **strings, int *num_strings);
 void translation_korean(const translation_string **strings, int *num_strings);
+void translation_polish(const translation_string **strings, int *num_strings);
 void translation_portuguese(const translation_string **strings, int *num_strings);
 void translation_russian(const translation_string **strings, int *num_strings);
 void translation_spanish(const translation_string **strings, int *num_strings);
+void translation_swedish(const translation_string **strings, int *num_strings);
+void translation_simplified_chinese(const translation_string **strings, int *num_strings);
 void translation_traditional_chinese(const translation_string **strings, int *num_strings);
 
 #endif // TRANSLATION_TRANSLATION_H

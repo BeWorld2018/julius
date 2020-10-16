@@ -5,6 +5,7 @@
 #include "game/system.h"
 #include "graphics/graphics.h"
 #include "graphics/screen.h"
+#include "platform/android/android.h"
 
 #include "SDL.h"
 
@@ -37,6 +38,24 @@ static int scale_pixels_to_logical(int pixel_value)
     return pixel_value * 100 / scale_percentage;
 }
 
+#ifdef __ANDROID__
+static void set_scale_for_screen(int pixel_width, int pixel_height)
+{
+    float scale = android_get_screen_scale();
+    scale = SDL_min(scale, 5.0f);
+    scale = SDL_max(0.5f, scale);
+    scale_percentage = scale * 100;
+    // Assure width is at least 640 and height is at least 480
+    float width_reference = scale_pixels_to_logical(pixel_width) / (float) MINIMUM.WIDTH;
+    float height_reference = scale_pixels_to_logical(pixel_height) / (float) MINIMUM.HEIGHT;
+    float minimum_reference = SDL_min(width_reference, height_reference);
+    if (minimum_reference < 1.0f) {
+        scale_percentage *= minimum_reference;
+    }
+    SDL_Log("Auto-setting scale to %i", scale_percentage);
+}
+#endif
+
 int platform_screen_create(const char *title, int display_scale_percentage)
 {
     scale_percentage = display_scale_percentage;
@@ -56,7 +75,8 @@ int platform_screen_create(const char *title, int display_scale_percentage)
 
     platform_screen_destroy();
 
-    SDL_Log("Creating screen %d x %d, fullscreen? %d\n", width, height, fullscreen);
+    SDL_Log("Creating screen %d x %d, %s, %s", width, height,
+        fullscreen ? "fullscreen" : "windowed", SDL_GetCurrentVideoDriver());
     Uint32 flags = SDL_WINDOW_RESIZABLE;
     if (fullscreen) {
         flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
@@ -74,21 +94,32 @@ int platform_screen_create(const char *title, int display_scale_percentage)
         SDL_GetWindowSize(SDL.window, &width, &height);
     }
 
+    SDL_Log("Creating renderer, available drivers:");
+    SDL_RendererInfo info;
+    int num_drivers = SDL_GetNumRenderDrivers();
+    for (int i = 0; i < num_drivers; i++) {
+        SDL_GetRenderDriverInfo(i, &info);
+        SDL_Log("- %s", info.name);
+    }
     SDL.renderer = SDL_CreateRenderer(SDL.window, -1, SDL_RENDERER_PRESENTVSYNC);
     if (!SDL.renderer) {
         SDL_Log("Unable to create renderer, trying software renderer: %s", SDL_GetError());
-        SDL.renderer = SDL_CreateRenderer(SDL.window, -1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_SOFTWARE);
+        SDL.renderer = SDL_CreateRenderer(SDL.window, -1, SDL_RENDERER_SOFTWARE);
         if (!SDL.renderer) {
             SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Unable to create renderer: %s", SDL_GetError());
             return 0;
         }
     }
+    SDL_GetRendererInfo(SDL.renderer, &info);
+    SDL_Log("Created renderer: %s (%d)", info.name, info.flags);
+
 #if !defined(__APPLE__)
     if (fullscreen && SDL_GetNumVideoDisplays() > 1) {
         SDL_SetWindowGrab(SDL.window, SDL_TRUE);
     }
 #endif
-    SDL_SetWindowMinimumSize(SDL.window, scale_logical_to_pixels(MINIMUM.WIDTH), scale_logical_to_pixels(MINIMUM.HEIGHT));
+    SDL_SetWindowMinimumSize(SDL.window,
+        scale_logical_to_pixels(MINIMUM.WIDTH), scale_logical_to_pixels(MINIMUM.HEIGHT));
     return platform_screen_resize(width, height);
 }
 
@@ -110,6 +141,10 @@ void platform_screen_destroy(void)
 
 int platform_screen_resize(int pixel_width, int pixel_height)
 {
+#ifdef __ANDROID__
+    set_scale_for_screen(pixel_width, pixel_height);
+#endif
+
     int logical_width = scale_pixels_to_logical(pixel_width);
     int logical_height = scale_pixels_to_logical(pixel_height);
 
@@ -128,7 +163,7 @@ int platform_screen_resize(int pixel_width, int pixel_height)
     SDL_RenderSetLogicalSize(SDL.renderer, logical_width, logical_height);
 
     if (SDL.texture) {
-        SDL_Log("Texture created (%d x %d)", logical_width, logical_height);
+        SDL_Log("Texture created: %d x %d", logical_width, logical_height);
         screen_set_resolution(logical_width, logical_height);
         return 1;
     } else {
@@ -149,11 +184,12 @@ void platform_screen_move(int x, int y)
 void platform_screen_set_fullscreen(void)
 {
     SDL_GetWindowPosition(SDL.window, &window_pos.x, &window_pos.y);
+    int display = SDL_GetWindowDisplayIndex(SDL.window);
     SDL_DisplayMode mode;
-    SDL_GetDesktopDisplayMode(SDL_GetWindowDisplayIndex(SDL.window), &mode);
-    SDL_Log("User to fullscreen %d x %d\n", mode.w, mode.h);
+    SDL_GetDesktopDisplayMode(display, &mode);
+    SDL_Log("User to fullscreen %d x %d on display %d", mode.w, mode.h, display);
     if (0 != SDL_SetWindowFullscreen(SDL.window, SDL_WINDOW_FULLSCREEN_DESKTOP)) {
-        SDL_Log("Unable to enter fullscreen: %s\n", SDL_GetError());
+        SDL_Log("Unable to enter fullscreen: %s", SDL_GetError());
         return;
     }
     SDL_SetWindowDisplayMode(SDL.window, &mode);
@@ -175,7 +211,8 @@ void platform_screen_set_windowed(void)
     setting_window(&logical_width, &logical_height);
     int pixel_width = scale_logical_to_pixels(logical_width);
     int pixel_height = scale_logical_to_pixels(logical_height);
-    SDL_Log("User to windowed %d x %d", pixel_width, pixel_height);
+    int display = SDL_GetWindowDisplayIndex(SDL.window);
+    SDL_Log("User to windowed %d x %d on display %d", pixel_width, pixel_height, display);
     SDL_SetWindowFullscreen(SDL.window, 0);
     SDL_SetWindowSize(SDL.window, pixel_width, pixel_height);
     if (window_pos.centered) {
@@ -194,6 +231,7 @@ void platform_screen_set_window_size(int logical_width, int logical_height)
     }
     int pixel_width = scale_logical_to_pixels(logical_width);
     int pixel_height = scale_logical_to_pixels(logical_height);
+    int display = SDL_GetWindowDisplayIndex(SDL.window);
     if (setting_fullscreen()) {
         SDL_SetWindowFullscreen(SDL.window, 0);
     } else {
@@ -206,7 +244,7 @@ void platform_screen_set_window_size(int logical_width, int logical_height)
     if (window_pos.centered) {
         platform_screen_center_window();
     }
-    SDL_Log("User resize to %d x %d\n", pixel_width, pixel_height);
+    SDL_Log("User resize to %d x %d on display %d", pixel_width, pixel_height, display);
     if (SDL_GetWindowGrab(SDL.window) == SDL_TRUE) {
         SDL_SetWindowGrab(SDL.window, SDL_FALSE);
     }
@@ -216,7 +254,8 @@ void platform_screen_set_window_size(int logical_width, int logical_height)
 void platform_screen_center_window(void)
 {
     int display = SDL_GetWindowDisplayIndex(SDL.window);
-    SDL_SetWindowPosition(SDL.window, SDL_WINDOWPOS_CENTERED_DISPLAY(display), SDL_WINDOWPOS_CENTERED_DISPLAY(display));
+    SDL_SetWindowPosition(SDL.window,
+        SDL_WINDOWPOS_CENTERED_DISPLAY(display), SDL_WINDOWPOS_CENTERED_DISPLAY(display));
     window_pos.centered = 1;
 }
 
@@ -237,5 +276,9 @@ void system_set_mouse_position(int *x, int *y)
 
 int system_is_fullscreen_only(void)
 {
+#ifdef __ANDROID__
+    return 1;
+#else
     return 0;
+#endif
 }

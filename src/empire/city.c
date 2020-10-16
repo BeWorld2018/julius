@@ -268,7 +268,8 @@ static int generate_trader(int city_id, empire_city *city)
 
     if (city->is_sea_trade) {
         // generate ship
-        if (city_buildings_has_working_dock() && scenario_map_has_river_entry() && !city_trade_has_sea_trade_problems()) {
+        if (city_buildings_has_working_dock() && scenario_map_has_river_entry()
+            && !city_trade_has_sea_trade_problems()) {
             map_point river_entry = scenario_map_river_entry();
             city->trader_figure_ids[index] = figure_create_trade_ship(river_entry.x, river_entry.y, city_id);
             return 1;
@@ -335,7 +336,6 @@ void empire_city_set_foreign(int city_id)
 {
     cities[city_id].type = EMPIRE_CITY_DISTANT_FOREIGN;
 }
-
 
 void empire_city_save_state(buffer *buf)
 {

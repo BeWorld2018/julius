@@ -112,7 +112,8 @@ static void draw_foreground(void)
     inner_panel_draw(144, 120, 20, 13);
 
     // title
-    if (data.message_not_exist_start_time && time_get_millis() - data.message_not_exist_start_time < NOT_EXIST_MESSAGE_TIMEOUT) {
+    if (data.message_not_exist_start_time
+        && time_get_millis() - data.message_not_exist_start_time < NOT_EXIST_MESSAGE_TIMEOUT) {
         lang_text_draw_centered(43, 2, 160, 50, 304, FONT_LARGE_BLACK);
     } else if (data.dialog_type == FILE_DIALOG_DELETE) {
         lang_text_draw_centered(43, 6, 160, 50, 304, FONT_LARGE_BLACK);
@@ -233,7 +234,7 @@ static void button_ok_cancel(int is_ok, int param2)
         }
     }
 
-    strncpy(data.file_data->last_loaded_file, filename, FILE_NAME_MAX);
+    strncpy(data.file_data->last_loaded_file, filename, FILE_NAME_MAX - 1);
 }
 
 static void on_scroll(void)
