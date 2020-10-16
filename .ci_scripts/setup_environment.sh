@@ -8,8 +8,18 @@ case "$BUILD_TARGET" in
 	docker run -d --name vitasdk --workdir /build/git -v "${PWD}:/build/git" gnuton/vitasdk-docker:20190626 tail -f /dev/null
 	;;
 "switch")
-	wget https://github.com/devkitPro/pacman/releases/download/devkitpro-pacman-1.0.1/devkitpro-pacman.deb
-	sudo dpkg -i devkitpro-pacman.deb
-	sudo dkp-pacman -Syyu --noconfirm devkitA64 devkitpro-pkgbuild-helpers libnx switch-tools switch-pkg-config switch-sdl2 switch-sdl2_mixer switch-libpng
+	docker run -d --name switchdev --workdir /build/git -v "${PWD}:/build/git" devkitpro/devkita64:20200528 tail -f /dev/null
+	docker exec switchdev /bin/bash -c "apt-get update && apt-get install -y --no-install-recommends cmake"
+	;;
+"android")
+	# Install Android SDK packages
+	mkdir -p $HOME/.android
+	touch $HOME/.android/repositories.cfg
+
+	for PACKAGE in 'ndk-bundle' 'cmake;3.10.2.4988404'
+	do
+	  echo "Installing $PACKAGE..."
+	  yes | sdkmanager $PACKAGE > /dev/null
+	done
 	;;
 esac

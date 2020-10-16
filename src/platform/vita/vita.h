@@ -9,16 +9,15 @@
 #define VITA_DISPLAY_WIDTH 960
 #define VITA_DISPLAY_HEIGHT 544
 
-enum {
-    TOUCH_MODE_TOUCHPAD             = 0, // drag the pointer and tap-click like on a touchpad (default)
-    TOUCH_MODE_DIRECT               = 1, // pointer jumps to finger but doesn't click on tap
-    TOUCH_MODE_ORIGINAL             = 2, // original julius touch mode as on any other system: pointer jumps to finger and clicks on tap
-    NUM_TOUCH_MODES                 = 3
-};
+#define PLATFORM_ENABLE_INIT_CALLBACK
+void platform_init_callback(void);
 
-extern int last_mouse_x; // defined in vita_input.c
-extern int last_mouse_y; // defined in vita_input.c
-extern int touch_mode; // defined in vita_input.c
+#define PLATFORM_ENABLE_PER_FRAME_CALLBACK
+void platform_per_frame_callback(void);
+
+#define PLATFORM_USE_VIRTUAL_KEYBOARD
+void platform_show_virtual_keyboard(const uint8_t *text, int max_length);
+void platform_hide_virtual_keyboard(void);
 
 typedef struct {
     vita2d_texture *texture;
@@ -30,7 +29,7 @@ extern vita_cursor *current_cursor; // defined in cursor.c
 
 int chdir(const char *path);
 
-char* vita_prepend_path(const char *path);
+char *vita_prepend_path(const char *path);
 
 #endif // __vita__
 #endif // PLATFORM_VITA_H

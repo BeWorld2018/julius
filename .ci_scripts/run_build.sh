@@ -5,9 +5,7 @@ case "$BUILD_TARGET" in
 	docker exec vitasdk /bin/bash -c "cd build && make"
 	;;
 "switch")
-	export DEVKITPRO=/opt/devkitpro
-	export PATH=/opt/devkitpro/devkitA64/bin:/opt/devkitpro/tools/bin:$PATH
-	cd build && make
+	docker exec switchdev /bin/bash -c "cd build && make"
 	;;
 "mac")
 	cd build && make && make test && make install && \
@@ -23,6 +21,10 @@ case "$BUILD_TARGET" in
 "linux")
 	cd build && make && make test && \
 	zip julius.zip julius
+	;;
+"android")
+	cd android && TERM=dumb ./gradlew assembleRelease && \
+	cd .. && cp android/julius/build/outputs/apk/release/julius-release.apk build/julius.apk
 	;;
 *)
 	cd build && make && make test

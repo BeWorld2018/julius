@@ -26,6 +26,7 @@ typedef enum {
     TR_CONFIG_SHOW_INTRO_VIDEO,
     TR_CONFIG_SIDEBAR_INFO,
     TR_CONFIG_SMOOTH_SCROLLING,
+    TR_CONFIG_DISABLE_MAP_DRAG,
     TR_CONFIG_VISUAL_FEEDBACK_ON_DELETE,
     TR_CONFIG_ALLOW_CYCLING_TEMPLES,
     TR_CONFIG_SHOW_WATER_STRUCTURE_RANGE,
@@ -114,6 +115,7 @@ void translation_polish(const translation_string **strings, int *num_strings);
 void translation_portuguese(const translation_string **strings, int *num_strings);
 void translation_russian(const translation_string **strings, int *num_strings);
 void translation_spanish(const translation_string **strings, int *num_strings);
+void translation_swedish(const translation_string **strings, int *num_strings);
 void translation_simplified_chinese(const translation_string **strings, int *num_strings);
 void translation_traditional_chinese(const translation_string **strings, int *num_strings);
 

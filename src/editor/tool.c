@@ -391,7 +391,8 @@ static void place_access_ramp(const map_tile *tile)
                 map_terrain_set(grid_offset, map_terrain_get(grid_offset) & terrain_mask);
             }
         }
-        map_building_tiles_add(0, tile->x, tile->y, 2, image_group(GROUP_TERRAIN_ACCESS_RAMP) + orientation, TERRAIN_ACCESS_RAMP);
+        map_building_tiles_add(0, tile->x, tile->y, 2,
+            image_group(GROUP_TERRAIN_ACCESS_RAMP) + orientation, TERRAIN_ACCESS_RAMP);
 
         update_terrain_after_elevation_changes();
         scenario_editor_updated_terrain();
@@ -413,6 +414,9 @@ void editor_tool_end_use(const map_tile *tile)
         return;
     }
     data.build_in_progress = 0;
+    if (!tile->grid_offset) {
+        return;
+    }
     switch (data.type) {
         case TOOL_EARTHQUAKE_POINT:
             place_earthquake_flag(tile);

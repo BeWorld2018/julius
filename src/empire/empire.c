@@ -46,7 +46,8 @@ void empire_load(int is_custom_scenario, int empire_id)
 
     // read data section with objects
     int offset = EMPIRE_HEADER_SIZE + EMPIRE_DATA_SIZE * empire_id;
-    if (io_read_file_part_into_buffer(filename, NOT_LOCALIZED, raw_data, EMPIRE_DATA_SIZE, offset) != EMPIRE_DATA_SIZE) {
+    int read_size = io_read_file_part_into_buffer(filename, NOT_LOCALIZED, raw_data, EMPIRE_DATA_SIZE, offset);
+    if (read_size != EMPIRE_DATA_SIZE) {
         // load empty empire when loading fails
         log_error("Unable to load empire data from file", filename, 0);
         memset(raw_data, 0, EMPIRE_DATA_SIZE);
@@ -100,23 +101,10 @@ void empire_set_viewport(int width, int height)
     check_scroll_boundaries();
 }
 
-void empire_get_scroll(int *x_scroll, int *y_scroll)
-{
-    *x_scroll = data.scroll_x;
-    *y_scroll = data.scroll_y;
-}
-
 void empire_adjust_scroll(int *x_offset, int *y_offset)
 {
     *x_offset = *x_offset - data.scroll_x;
     *y_offset = *y_offset - data.scroll_y;
-}
-
-void empire_set_scroll(int x, int y)
-{
-    data.scroll_x = x;
-    data.scroll_y = y;
-    check_scroll_boundaries();
 }
 
 void empire_scroll_map(int x, int y)

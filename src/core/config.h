@@ -10,6 +10,7 @@ typedef enum {
     CONFIG_UI_SIDEBAR_INFO,
     CONFIG_UI_SHOW_INTRO_VIDEO,
     CONFIG_UI_SMOOTH_SCROLLING,
+    CONFIG_UI_DISABLE_MAP_DRAG,
     CONFIG_UI_VISUAL_FEEDBACK_ON_DELETE,
     CONFIG_UI_ALLOW_CYCLING_TEMPLES,
     CONFIG_UI_SHOW_WATER_STRUCTURE_RANGE,
@@ -64,11 +65,6 @@ int config_get_default_value(config_key key);
  * @return Default config value, is always non-NULL but may be an empty string
  */
 const char *config_get_default_string_value(config_string_key key);
-
-/**
- * Reset all settings to their defaults
- */
-void config_set_defaults(void);
 
 /**
  * Load config from file

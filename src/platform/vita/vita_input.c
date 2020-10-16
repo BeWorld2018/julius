@@ -1,10 +1,16 @@
 #include "vita_input.h"
-#include "vita_touch.h"
+#include "vita_keyboard.h"
 #include "vita.h"
 #include <math.h>
 
-#include "vita_keyboard.h"
+#include "core/calc.h"
+#include "core/encoding.h"
+#include "core/string.h"
+#include "game/system.h"
+#include "input/mouse.h"
+
 #define NO_MAPPING -1
+#define MAX_VKBD_TEXT_SIZE 600
 
 enum {
     VITA_PAD_TRIANGLE   = 0,
@@ -30,16 +36,18 @@ enum {
     ANALOG_MAX = 4
 };
 
-int last_mouse_x = 0;
-int last_mouse_y = 0;
-int touch_mode = TOUCH_MODE_TOUCHPAD;
-static bool can_change_touch_mode = true;
+static int can_change_touch_mode = 1;
 
 static SDL_Joystick *joy = NULL;
 
+static struct {
+    char utf8_text[MAX_VKBD_TEXT_SIZE];
+    int requested;
+    int max_length;
+} vkbd;
+
 static int hires_dx = 0; // sub-pixel-precision counters to allow slow pointer motion of <1 pixel per frame
 static int hires_dy = 0;
-static int vkbd_requested = 0;
 static int pressed_buttons[VITA_NUM_BUTTONS];
 static int right_analog_state[ANALOG_MAX];
 static SDL_Keycode map_vita_button_to_sdlkey[VITA_NUM_BUTTONS] =
@@ -75,7 +83,7 @@ static uint8_t map_vita_button_to_sdlmousebutton[VITA_NUM_BUTTONS] =
     NO_MAPPING           // VITA_START
 };
 
-static void vita_start_text_input(char *initial_text, int multiline);
+static void vita_start_text_input(void);
 static void vita_rescale_analog(int *x, int *y, int dead);
 static void vita_button_to_sdlkey_event(int vita_button, SDL_Event *event, uint32_t event_type);
 static void vita_button_to_sdlmouse_event(int vita_button, SDL_Event *event, uint32_t event_type);
@@ -83,28 +91,30 @@ static void vita_button_to_sdlmouse_event(int vita_button, SDL_Event *event, uin
 static void vita_create_and_push_sdlkey_event(uint32_t event_type, SDL_Scancode scan, SDL_Keycode key);
 static void vita_create_key_event_for_direction(int direction, int key_pressed);
 
+void platform_per_frame_callback(void)
+{
+    if (vkbd.requested) {
+        vita_start_text_input();
+        vkbd.requested = 0;
+    }
+    vita_handle_analog_sticks();
+}
+
+void platform_show_virtual_keyboard(const uint8_t *text, int max_length)
+{
+    vkbd.max_length = calc_bound(max_length, 0, MAX_VKBD_TEXT_SIZE);
+    encoding_to_utf8(text, vkbd.utf8_text, MAX_VKBD_TEXT_SIZE, 0);
+    vkbd.requested = 1;
+}
+
+void platform_hide_virtual_keyboard(void)
+{}
+
 int vita_poll_event(SDL_Event *event)
 {
     int ret = SDL_PollEvent(event);
     if (event != NULL) {
-        if (touch_mode != TOUCH_MODE_ORIGINAL) {
-            vita_handle_touch(event);
-        }
         switch (event->type) {
-            case SDL_FINGERDOWN:
-            case SDL_FINGERUP:
-            case SDL_FINGERMOTION: // intentional fallthrough
-                // ignore rear panel touch events
-                if (event->tfinger.touchId != 0) {
-                    event->type = SDL_USEREVENT;
-                    event->user.code = -1; // ensure that this event is ignored
-                }
-                break;
-            case SDL_MOUSEMOTION:
-                // update joystick / touch mouse coords
-                last_mouse_x = event->motion.x;
-                last_mouse_y = event->motion.y;
-                break;
             case SDL_JOYBUTTONDOWN:
                 if (event->jbutton.which != 0) { // Only Joystick 0 controls the game
                     break;
@@ -125,13 +135,12 @@ int vita_poll_event(SDL_Event *event)
                         vita_button_to_sdlmouse_event(event->jbutton.button, event, SDL_MOUSEBUTTONDOWN);
                         break;
                     case VITA_PAD_START:
-                        vkbd_requested = 1;
+                        vkbd.requested = 1;
                         break;
                     case VITA_PAD_SELECT:
                         if (can_change_touch_mode) {
-                            touch_mode++;
-                            touch_mode %= NUM_TOUCH_MODES;
-                            can_change_touch_mode = false;
+                            touch_cycle_mode();
+                            can_change_touch_mode = 0;
                         }
                         break;
                     default:
@@ -158,7 +167,7 @@ int vita_poll_event(SDL_Event *event)
                         vita_button_to_sdlmouse_event(event->jbutton.button, event, SDL_MOUSEBUTTONUP);
                         break;
                     case VITA_PAD_SELECT:
-                        can_change_touch_mode = true;
+                        can_change_touch_mode = 1;
                         break;
                     default:
                         break;
@@ -190,6 +199,8 @@ void vita_handle_analog_sticks(void)
         hires_dy %= slowdown;
         if (xrel != 0 || yrel != 0) {
             // limit joystick mouse to screen coords, same as physical mouse
+            int last_mouse_x = mouse_get()->x;
+            int last_mouse_y = mouse_get()->y;
             int x = last_mouse_x + xrel;
             int y = last_mouse_y + yrel;
             if (x < 0) {
@@ -270,46 +281,22 @@ void vita_handle_analog_sticks(void)
     }
 }
 
-void vita_handle_virtual_keyboard(void)
+static void vita_start_text_input(void)
 {
-    if (vkbd_requested) {
-        vkbd_requested = 0;
-        vita_start_text_input("", 0);
-    }
-}
-
-static int get_utf8_character_bytes(const uint8_t *uc)
-{
-    if (uc[0] < 0x80) {
-        return 1;
-    } else if ((uc[0] & 0xe0) == 0xc0 && (uc[1] & 0xc0) == 0x80) {
-        return 2;
-    } else if ((uc[0] & 0xf0) == 0xe0 && (uc[1] & 0xc0) == 0x80 && (uc[2] & 0xc0) == 0x80) {
-        return 3;
-    } else if ((uc[0] & 0xf8) == 0xf0 && (uc[1] & 0xc0) == 0x80 && (uc[2] & 0xc0) == 0x80 && (uc[3] & 0xc0) == 0x80) {
-        return 4;
-    } else {
-        return 1;
-    }
-}
-
-static void vita_start_text_input(char *initial_text, int multiline)
-{
-    char *text = vita_keyboard_get("Enter New Text:", initial_text, 600, multiline);
+    char *text = vita_keyboard_get("Enter New Text:", vkbd.utf8_text, vkbd.max_length);
     if (text == NULL)  {
         return;
     }
-    for (int i = 0; i < 600; i++) {
+    for (int i = 0; i < MAX_VKBD_TEXT_SIZE; i++) {
         vita_create_and_push_sdlkey_event(SDL_KEYDOWN, SDL_SCANCODE_BACKSPACE, SDLK_BACKSPACE);
         vita_create_and_push_sdlkey_event(SDL_KEYUP, SDL_SCANCODE_BACKSPACE, SDLK_BACKSPACE);
     }
-    for (int i = 0; i < 600; i++) {
+    for (int i = 0; i < MAX_VKBD_TEXT_SIZE; i++) {
         vita_create_and_push_sdlkey_event(SDL_KEYDOWN, SDL_SCANCODE_DELETE, SDLK_DELETE);
         vita_create_and_push_sdlkey_event(SDL_KEYUP, SDL_SCANCODE_DELETE, SDLK_DELETE);
     }
-    const uint8_t *utf8_text = (uint8_t*) text;
-    for (int i = 0; i < 599 && utf8_text[i];) {
-        int bytes_in_char = get_utf8_character_bytes(&utf8_text[i]);
+    for (int i = 0; i < MAX_VKBD_TEXT_SIZE - 1 && text[i];) {
+        int bytes_in_char = encoding_get_utf8_character_bytes(text[i]);
         SDL_Event textinput_event;
         textinput_event.type = SDL_TEXTINPUT;
         for (int n = 0; n < bytes_in_char; n++) {
@@ -414,8 +401,8 @@ static void vita_button_to_sdlmouse_event(int vita_button, SDL_Event *event, uin
         event->button.state = SDL_RELEASED;
         pressed_buttons[vita_button] = 0;
     }
-    event->button.x = last_mouse_x;
-    event->button.y = last_mouse_y;
+    event->button.x = mouse_get()->x;
+    event->button.y = mouse_get()->y;
 }
 
 static void vita_create_and_push_sdlkey_event(uint32_t event_type, SDL_Scancode scan, SDL_Keycode key)

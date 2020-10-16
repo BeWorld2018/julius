@@ -5,10 +5,15 @@ if(VITA_BUILD AND SWITCH_BUILD)
     message(FATAL_ERROR "Cannot build with -DVITA_BUILD=ON and -DSWITCH_BUILD=ON at the same time")
 endif()
 
+if((VITA_BUILD OR SWITCH_BUILD) AND ANDROID_BUILD)
+    message(FATAL_ERROR "Cannot build with -DVITA_BUILD=ON or -DSWITCH_BUILD=ON and -DANDROID_BUILD=ON at the same time")
+endif()
+
 option(DRAW_FPS "Draw FPS on the top left corner of the window." OFF)
 option(SYSTEM_LIBS "Use system libraries when available." ON)
 cmake_dependent_option(VITA_BUILD "Build for the PlayStation Vita handheld game console." OFF "NOT MSVC" OFF)
 cmake_dependent_option(SWITCH_BUILD "Build for the Nintendo Switch handheld game console." OFF "NOT MSVC; NOT VITA_BUILD" OFF)
+cmake_dependent_option(ANDROID_BUILD "Build for the Android environment." OFF "NOT MSVC; NOT VITA_BUILD; NOT SWITCH_BUILD" OFF)
 
 if(VITA_BUILD AND NOT DEFINED CMAKE_TOOLCHAIN_FILE)
     if(DEFINED ENV{VITASDK})
@@ -190,13 +195,19 @@ elseif (SWITCH_BUILD)
         ${PROJECT_SOURCE_DIR}/src/platform/switch/cursor.c
         ${PROJECT_SOURCE_DIR}/src/platform/switch/screen.c
         ${PROJECT_SOURCE_DIR}/src/platform/switch/switch_input.c
-        ${PROJECT_SOURCE_DIR}/src/platform/switch/switch_keyboard.c
     )
 else()
     set(PLATFORM_FILES
         ${PLATFORM_FILES}
         ${PROJECT_SOURCE_DIR}/src/platform/cursor.c
         ${PROJECT_SOURCE_DIR}/src/platform/screen.c
+    )
+endif()
+
+if (ANDROID_BUILD)
+    set(PLATFORM_FILES
+        ${PLATFORM_FILES}
+        ${PROJECT_SOURCE_DIR}/src/platform/android/android.c
     )
 endif()
 
@@ -208,6 +219,7 @@ set(CORE_FILES
     ${PROJECT_SOURCE_DIR}/src/core/dir.c
     ${PROJECT_SOURCE_DIR}/src/core/encoding.c
     ${PROJECT_SOURCE_DIR}/src/core/encoding_korean.c
+    ${PROJECT_SOURCE_DIR}/src/core/encoding_simp_chinese.c
     ${PROJECT_SOURCE_DIR}/src/core/encoding_trad_chinese.c
     ${PROJECT_SOURCE_DIR}/src/core/file.c
     ${PROJECT_SOURCE_DIR}/src/core/hotkey_config.c
@@ -228,6 +240,7 @@ set(BUILDING_FILES
     ${PROJECT_SOURCE_DIR}/src/building/barracks.c
     ${PROJECT_SOURCE_DIR}/src/building/building.c
     ${PROJECT_SOURCE_DIR}/src/building/building_state.c
+    ${PROJECT_SOURCE_DIR}/src/building/clone.c
     ${PROJECT_SOURCE_DIR}/src/building/construction.c
     ${PROJECT_SOURCE_DIR}/src/building/construction_building.c
     ${PROJECT_SOURCE_DIR}/src/building/construction_clear.c
@@ -340,6 +353,7 @@ set(GAME_FILES
     ${PROJECT_SOURCE_DIR}/src/game/orientation.c
     ${PROJECT_SOURCE_DIR}/src/game/resource.c
     ${PROJECT_SOURCE_DIR}/src/game/settings.c
+    ${PROJECT_SOURCE_DIR}/src/game/speed.c
     ${PROJECT_SOURCE_DIR}/src/game/state.c
     ${PROJECT_SOURCE_DIR}/src/game/tick.c
     ${PROJECT_SOURCE_DIR}/src/game/time.c
@@ -549,10 +563,14 @@ set(TRANSLATION_FILES
     ${PROJECT_SOURCE_DIR}/src/translation/english.c
     ${PROJECT_SOURCE_DIR}/src/translation/french.c
     ${PROJECT_SOURCE_DIR}/src/translation/german.c
+    ${PROJECT_SOURCE_DIR}/src/translation/italian.c
     ${PROJECT_SOURCE_DIR}/src/translation/korean.c
+    ${PROJECT_SOURCE_DIR}/src/translation/polish.c
     ${PROJECT_SOURCE_DIR}/src/translation/portuguese.c
     ${PROJECT_SOURCE_DIR}/src/translation/russian.c
+    ${PROJECT_SOURCE_DIR}/src/translation/simplified_chinese.c
     ${PROJECT_SOURCE_DIR}/src/translation/spanish.c
+    ${PROJECT_SOURCE_DIR}/src/translation/swedish.c
     ${PROJECT_SOURCE_DIR}/src/translation/traditional_chinese.c
     ${PROJECT_SOURCE_DIR}/src/translation/translation.c
 )
@@ -609,7 +627,11 @@ endfunction()
 find_package(SDL2 REQUIRED)
 find_package(SDL2_mixer REQUIRED)
 
-add_executable(${SHORT_NAME} WIN32 ${SOURCE_FILES})
+if(ANDROID_BUILD)
+    add_library(${SHORT_NAME} SHARED ${SDL2_ANDROID_HOOK} ${SOURCE_FILES})
+else()
+    add_executable(${SHORT_NAME} WIN32 ${SOURCE_FILES})
+endif()
 
 if(MSVC)
     add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
@@ -798,8 +820,12 @@ else()
     if (UNIX AND NOT APPLE AND (CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID STREQUAL "Clang"))
         target_link_libraries(${SHORT_NAME} m)
     endif()
+    if(ANDROID_BUILD)
+        find_library(log-lib log)
+        target_link_libraries(${SHORT_NAME} ${log-lib})
+    endif()
     target_link_libraries (${SHORT_NAME} ${SDL2_LIBRARY} ${SDL2_MIXER_LIBRARY})
-    if(NOT APPLE)
+    if(NOT APPLE AND NOT ANDROID_BUILD)
         install(TARGETS ${SHORT_NAME} RUNTIME DESTINATION bin)
     endif()
 
@@ -812,7 +838,7 @@ else()
     endif()
 
     # Unit tests
-    if(NOT VITA_BUILD AND NOT SWITCH_BUILD)
+    if(NOT VITA_BUILD AND NOT SWITCH_BUILD AND NOT ANDROID_BUILD)
         enable_testing()
         add_subdirectory(test)
     endif()
