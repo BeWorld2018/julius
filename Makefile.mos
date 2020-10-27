@@ -4,30 +4,30 @@ CC = ppc-morphos-gcc-9
 RM = rm -f
 
 OBJ =  ext/tinyfiledialogs/tinyfiledialogs.o \
-   src/platform/arguments.o \
-   src/platform/file_manager.o \
-   src/platform/julius.o \
-   src/platform/keyboard_input.o \
-   src/platform/log.o \
-   src/platform/mouse.o \
-   src/platform/platform.o \
-   src/platform/prefs.o \
-   src/platform/sound_device.o \
-   src/platform/touch.o \
-   src/platform/version.o \
-   src/platform/virtual_keyboard.o \
-	       src/platform/cursor.o \
-       src/platform/screen.o \
-	   src/core/backtrace.o \
-   src/core/buffer.o \
-   src/core/calc.o \
-   src/core/config.o \
-   src/core/dir.o \
-   src/core/encoding.o \
-   src/core/encoding_korean.o \
-   src/core/encoding_simp_chinese.o \
-   src/core/encoding_trad_chinese.o \
-   src/core/file.o \
+	   src/platform/arguments.o \
+	   src/platform/file_manager.o \
+	   src/platform/julius.o \
+	   src/platform/keyboard_input.o \
+	   src/platform/log.o \
+	src/platform/mouse.o \
+	src/platform/platform.o \
+	src/platform/prefs.o \
+	src/platform/sound_device.o \
+	src/platform/touch.o \
+	src/platform/version.o \
+	src/platform/virtual_keyboard.o \
+	src/platform/cursor.o \
+		   src/platform/screen.o \
+		   src/core/backtrace.o \
+	   src/core/buffer.o \
+	   src/core/calc.o \
+	   src/core/config.o \
+	   src/core/dir.o \
+	   src/core/encoding.o \
+	   src/core/encoding_korean.o \
+	   src/core/encoding_simp_chinese.o \
+	   src/core/encoding_trad_chinese.o \
+	   src/core/file.o \
    src/core/hotkey_config.o \
    src/core/image.o \
    src/core/io.o \
@@ -253,6 +253,7 @@ OBJ =  ext/tinyfiledialogs/tinyfiledialogs.o \
    src/widget/sidebar/common.o \
    src/widget/sidebar/editor.o \
    src/widget/sidebar/extra.o \
+   src/widget/sidebar/military.o \
    src/widget/sidebar/slide.o \
 	   src/window/advisors.o \
    src/window/advisor/chief.o \
@@ -315,6 +316,7 @@ OBJ =  ext/tinyfiledialogs/tinyfiledialogs.o \
    src/window/main_menu.o \
    src/window/message_dialog.o \
    src/window/message_list.o \
+   src/window/military_menu.o \
    src/window/mission_briefing.o \
    src/window/mission_end.o \
    src/window/mission_selection.o \
@@ -345,6 +347,7 @@ OBJ =  ext/tinyfiledialogs/tinyfiledialogs.o \
    src/translation/russian.o \
    src/translation/simplified_chinese.o \
    src/translation/spanish.o \
+   src/translation/swedish.o \
    src/translation/traditional_chinese.o \
    src/translation/translation.o
 	

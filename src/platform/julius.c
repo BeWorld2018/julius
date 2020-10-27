@@ -25,6 +25,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#ifdef __MORPHOS__
+unsigned long __stack = 1000000;
+static const char *version __attribute__((used)) = "$VER Julius 1.5.0 (27.10.2020) port by BeWorld";
+#endif
+
 #ifdef __SWITCH__
 #include "platform/switch/switch.h"
 #include "platform/switch/switch_input.h"
