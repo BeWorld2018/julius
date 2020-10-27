@@ -2,6 +2,7 @@
 
 #include "core/lang.h"
 #include "core/locale.h"
+#include "core/string.h"
 #include "graphics/text.h"
 
 int lang_text_get_width(int group, int number, font_t font)
@@ -33,6 +34,12 @@ void lang_text_draw_centered_colored(
 {
     const uint8_t *str = lang_get_string(group, number);
     text_draw_centered(str, x_offset, y_offset, box_width, font, color);
+}
+
+void lang_text_draw_ellipsized(int group, int number, int x_offset, int y_offset, int box_width, font_t font)
+{
+    const uint8_t *str = lang_get_string(group, number);
+    text_draw_ellipsized(str, x_offset, y_offset, box_width, font, 0);
 }
 
 int lang_text_draw_amount(int group, int number, int amount, int x_offset, int y_offset, font_t font)

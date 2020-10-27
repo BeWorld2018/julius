@@ -444,7 +444,6 @@ void widget_city_handle_input(const mouse *m, const hotkeys *h)
 static void military_map_click(int legion_formation_id, const map_tile *tile)
 {
     if (!tile->grid_offset) {
-        window_city_show();
         return;
     }
     formation *m = formation_get(legion_formation_id);

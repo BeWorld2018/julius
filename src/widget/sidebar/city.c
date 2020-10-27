@@ -212,12 +212,6 @@ void widget_sidebar_city_draw_foreground(void)
     sidebar_extra_draw_foreground();
 }
 
-void widget_sidebar_city_draw_foreground_military(void)
-{
-    widget_minimap_draw(sidebar_common_get_x_offset_expanded() + 8,
-        MINIMAP_Y_OFFSET, MINIMAP_WIDTH, MINIMAP_HEIGHT, 1);
-}
-
 int widget_sidebar_city_handle_mouse(const mouse *m)
 {
     if (widget_city_has_input()) {
@@ -278,7 +272,6 @@ static void slide_finished(void)
 {
     city_view_toggle_sidebar();
     window_city_show();
-    window_draw(1);
 }
 
 static void button_overlay(int param1, int param2)
